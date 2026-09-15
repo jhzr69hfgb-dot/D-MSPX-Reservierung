@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#2563eb">
+
+  <title>D-MSPX Reservierung</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI",
+                   Roboto, Arial, sans-serif;
+      background: #f3f6fb;
+      color: #172033;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 28px 18px 50px;
+    }
+
+    h1 {
+      font-size: 38px;
+      line-height: 1.08;
+      margin: 20px 0 12px;
+    }
+
+    .subtitle {
+      color: #697386;
+      font-size: 20px;
+      line-height: 1.4;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 22px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    }
+
+    h2 {
+      font-size: 28px;
+      margin: 0 0 24px;
+    }
+
+    label {
+      display: block;
+      font-size: 18px;
+      font-weight: 700;
+      margin: 18px 0 8px;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      min-height: 54px;
+      padding: 12px 14px;
+      font-size: 18px;
+      border: 2px solid #d1d5db;
+      border-radius: 14px;
+      background: white;
+      color: #172033;
+    }
+
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #2563eb;
+    }
+
+    .button {
+      width: 100%;
+      border: none;
+      border-radius: 14px;
+      padding: 16px;
+      margin-top: 24px;
+      background: #2563eb;
+      color: white;
+      font-size: 20px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .button:active {
+      transform: scale(0.99);
+    }
+
+    .empty {
+      text-align: center;
+      color: #6b7280;
+      padding: 20px 5px;
+      font-size: 17px;
+    }
+
+    .reservation {
+      border-left: 6px solid #2563eb;
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+
+    .reservation h3 {
+      margin: 0 0 8px;
+      font-size: 21px;
+    }
+
+    .reservation p {
+      margin: 5px 0;
+      font-size: 16px;
+    }
+
+    .delete {
+      margin-top: 12px;
+      border: none;
+      background: #fee2e2;
+      color: #b91c1c;
+      border-radius: 10px;
+      padding: 9px 13px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .notice {
+      display: none;
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 10px;
+      background: #dcfce7;
+      color: #166534;
+      font-weight: 600;
+    }
+
+    .warning {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    footer {
+      text-align: center;
+      color: #9ca3af;
+      font-size: 14px;
+      margin-top: 30px;
+    }
+
+    @media (max-width: 500px) {
+      h1 {
+        font-size: 34px;
+      }
+
+      .container {
+        padding: 20px 14px 40px;
+      }
+
+      .card {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <h1>✈️ D-MSPX<br>Reservierung</h1>
+
+  <div class="subtitle">
+    Reservierungskalender für unsere Haltergemeinschaft
+  </div>
+
+  <div class="card">
+
+    <h2>Reservieren</h2>
+
+    <form id="reservationForm">
+
+      <label for="name">Name</label>
+      <select id="name" required>
+        <option value="">Bitte auswählen</option>
+        <option value="Volker">Volker</option>
+        <option value="Franz">Franz</option>
+        <option value="Philipp">Philipp</option>
+        <option value="Patrick">Patrick</option>
+      </select>
+
+      <label for="date">Datum</label>
+      <input type="date" id="date" required>
+
+      <label for="from">Von</label>
+      <input type="time" id="from" required>
+
+      <label for="to">Bis</label>
+      <input type="time" id="to" required>
+
+      <label for="type">Art</label>
+      <select id="type">
+        <option value="Flug">Flug</option>
+        <option value="Wartung">Wartung</option>
+        <option value="Werkstatt">Werkstatt</option>
+        <option value="Sonstiges">Sonstiges</option>
+      </select>
+
+      <label for="note">Bemerkung</label>
+      <textarea
+        id="note"
+        placeholder="Optional, z. B. Tannheim, Wartung, Tagesausflug ..."
+      ></textarea>
+
+      <button class="button" type="submit">
+        Reservierung speichern
+      </button>
+
+      <div id="message" class="notice"></div>
+
+    </form>
+
+  </div>
+
+  <div class="card">
+
+    <h2>Reservierungen</h2>
+
+    <div id="reservations"></div>
+
+  </div>
+
+  <footer>
+    D-MSPX · Haltergemeinschaft
+  </footer>
+
+</div>
+
+
+<script>
+
+  const STORAGE_KEY = "dmspx_reservations";
+
+  const form = document.getElementById("reservationForm");
+  const list = document.getElementById("reservations");
+  const message = document.getElementById("message");
+
+  function getReservations() {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    } catch {
+      return [];
+    }
+  }
+
+  function saveReservations(data) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }
+
+  function formatDate(dateString) {
+    const parts = dateString.split("-");
+
+    if (parts.length !== 3) {
+      return dateString;
+    }
+
+    return parts[2] + "." + parts[1] + "." + parts[0];
+  }
+
+  function showMessage(text, error = false) {
+
+    message.textContent = text;
+    message.className = error
+      ? "notice warning"
+      : "notice";
+
+    message.style.display = "block";
+
+    setTimeout(() => {
+      message.style.display = "none";
+    }, 4000);
+  }
+
+  function hasConflict(newReservation, reservations) {
+
+    return reservations.some(r => {
+
+      if (r.date !== newReservation.date) {
+        return false;
+      }
+
+      return (
+        newReservation.from < r.to &&
+        newReservation.to > r.from
+      );
+
+    });
+  }
+
+  function renderReservations() {
+
+    const reservations = getReservations();
+
+    reservations.sort((a, b) => {
+
+      const first =
+        new Date(a.date + "T" + a.from);
+
+      const second =
+        new Date(b.date + "T" + b.from);
+
+      return first - second;
+    });
+
+    list.innerHTML = "";
+
+    if (reservations.length === 0) {
+
+      list.innerHTML =
+        '<div class="empty">Noch keine Reservierungen vorhanden.</div>';
+
+      return;
+    }
+
+    reservations.forEach(r => {
+
+      const box = document.createElement("div");
+      box.className = "reservation";
+
+      const title = document.createElement("h3");
+      title.textContent =
+        "✈️ " + formatDate(r.date) +
+        " · " + r.from + "–" + r.to;
+
+      const person = document.createElement("p");
+      person.textContent = "👤 " + r.name;
+
+      const type = document.createElement("p");
+      type.textContent = "📌 " + r.type;
+
+      box.appendChild(title);
+      box.appendChild(person);
+      box.appendChild(type);
+
+      if (r.note) {
+
+        const note = document.createElement("p");
+        note.textContent = "📝 " + r.note;
+
+        box.appendChild(note);
+      }
+
+      const deleteButton = document.createElement("button");
+
+      deleteButton.className = "delete";
+      deleteButton.textContent = "Reservierung löschen";
+
+      deleteButton.addEventListener("click", function () {
+
+        if (!confirm("Diese Reservierung wirklich löschen?")) {
+          return;
+        }
+
+        const current = getReservations();
+
+        const updated =
+          current.filter(item => item.id !== r.id);
+
+        saveReservations(updated);
+
+        renderReservations();
+      });
+
+      box.appendChild(deleteButton);
+
+      list.appendChild(box);
+    });
+  }
+
+  form.addEventListener("submit", function(event) {
+
+    event.preventDefault();
+
+    const reservation = {
+
+      id:
+        Date.now().toString() +
+        Math.random().toString(16).slice(2),
+
+      name:
+        document.getElementById("name").value,
+
+      date:
+        document.getElementById("date").value,
+
+      from:
+        document.getElementById("from").value,
+
+      to:
+        document.getElementById("to").value,
+
+      type:
+        document.getElementById("type").value,
+
+      note:
+        document.getElementById("note").value.trim()
+
+    };
+
+    if (
+      !reservation.name ||
+      !reservation.date ||
+      !reservation.from ||
+      !reservation.to
+    ) {
+
+      showMessage(
+        "Bitte Name, Datum, Von und Bis ausfüllen.",
+        true
+      );
+
+      return;
+    }
+
+    if (reservation.to <= reservation.from) {
+
+      showMessage(
+        "Die Bis-Zeit muss nach der Von-Zeit liegen.",
+        true
+      );
+
+      return;
+    }
+
+    const reservations = getReservations();
+
+    if (hasConflict(reservation, reservations)) {
+
+      showMessage(
+        "⚠️ Für diesen Zeitraum besteht bereits eine Reservierung.",
+        true
+      );
+
+      return;
+    }
+
+    reservations.push(reservation);
+
+    saveReservations(reservations);
+
+    showMessage("✅ Reservierung gespeichert.");
+
+    form.reset();
+
+    document.getElementById("date").value =
+      new Date().toISOString().split("T")[0];
+
+    renderReservations();
+
+  });
+
+  document.getElementById("date").value =
+    new Date().toISOString().split("T")[0];
+
+  renderReservations();
+
+</script>
+
+</body>
+</html>
