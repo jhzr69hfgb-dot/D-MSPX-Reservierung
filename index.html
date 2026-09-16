@@ -6,7 +6,9 @@
   <meta name="theme-color" content="#2563eb">
 
   <title>D-MSPX Reservierung</title>
-
+<script>
+const SUPABASE_URL = "https://rwvygczisftduwnhvksn.supabase.co";
+const SUPABASE_KEY = "sb_publishable_q10vrQku7MJuQ9UZlS6yVg_WXbuyspu
   <style>
     * {
       box-sizing: border-box;
@@ -478,6 +480,305 @@
 
   renderReservations();
 
+                   </// ===== GEMEINSAME SUPABASE-RESERVIERUNGEN =====
+
+const API_URL = SUPABASE_URL + "/rest/v1/reservierungen";
+
+async function cloudGetReservations() {
+
+  const response = await fetch(
+
+    API_URL + "?select=*&order=datum.asc,von.asc",
+
+    {
+
+      headers: {
+
+        "apikey": SUPABASE_KEY
+
+      }
+
+    }
+
+  );
+
+  if (!response.ok) {
+
+    throw new Error("Reservierungen konnten nicht geladen werden.");
+
+  }
+
+  const rows = await response.json();
+
+  return rows.map(r => ({
+
+    id: r.id,
+
+    name: r.name,
+
+    date: r.datum,
+
+    from: (r.von || "").slice(0, 5),
+
+    to: (r.bis || "").slice(0, 5),
+
+    type: r.art,
+
+    note: r.bemerkung || ""
+
+  }));
+
+}
+
+async function cloudRenderReservations() {
+
+  try {
+
+    const reservations = await cloudGetReservations();
+
+    list.innerHTML = "";
+
+    if (reservations.length === 0) {
+
+      list.innerHTML =
+
+        '<div class="empty">Noch keine Reservierungen vorhanden.</div>';
+
+      return;
+
+    }
+
+    reservations.forEach(r => {
+
+      const box = document.createElement("div");
+
+      box.className = "reservation";
+
+      const title = document.createElement("h3");
+
+      title.textContent =
+
+        "✈️ " + formatDate(r.date) +
+
+        " · " + r.from + "–" + r.to;
+
+      const person = document.createElement("p");
+
+      person.textContent = "👤 " + r.name;
+
+      const type = document.createElement("p");
+
+      type.textContent = "📌 " + r.type;
+
+      box.appendChild(title);
+
+      box.appendChild(person);
+
+      box.appendChild(type);
+
+      if (r.note) {
+
+        const note = document.createElement("p");
+
+        note.textContent = "📝 " + r.note;
+
+        box.appendChild(note);
+
+      }
+
+      const deleteButton = document.createElement("button");
+
+      deleteButton.className = "delete";
+
+      deleteButton.textContent = "Reservierung löschen";
+
+      deleteButton.addEventListener("click", async function () {
+
+        if (!confirm("Diese Reservierung wirklich löschen?")) return;
+
+        const response = await fetch(
+
+          API_URL + "?id=eq." + encodeURIComponent(r.id),
+
+          {
+
+            method: "DELETE",
+
+            headers: {
+
+              "apikey": SUPABASE_KEY
+
+            }
+
+          }
+
+        );
+
+        if (response.ok) {
+
+          await cloudRenderReservations();
+
+        } else {
+
+          showMessage("Löschen nicht möglich.", true);
+
+        }
+
+      });
+
+      box.appendChild(deleteButton);
+
+      list.appendChild(box);
+
+    });
+
+  } catch (error) {
+
+    list.innerHTML =
+
+      '<div class="empty">Verbindung zur Datenbank fehlgeschlagen.</div>';
+
+  }
+
+}
+
+form.addEventListener("submit", async function(event) {
+
+  event.preventDefault();
+
+  event.stopImmediatePropagation();
+
+  const reservation = {
+
+    name: document.getElementById("name").value,
+
+    date: document.getElementById("date").value,
+
+    from: document.getElementById("from").value,
+
+    to: document.getElementById("to").value,
+
+    type: document.getElementById("type").value,
+
+    note: document.getElementById("note").value.trim()
+
+  };
+
+  if (
+
+    !reservation.name ||
+
+    !reservation.date ||
+
+    !reservation.from ||
+
+    !reservation.to
+
+  ) {
+
+    showMessage("Bitte Name, Datum, Von und Bis ausfüllen.", true);
+
+    return;
+
+  }
+
+  if (reservation.to <= reservation.from) {
+
+    showMessage("Die Bis-Zeit muss nach der Von-Zeit liegen.", true);
+
+    return;
+
+  }
+
+  try {
+
+    const reservations = await cloudGetReservations();
+
+    if (hasConflict(reservation, reservations)) {
+
+      showMessage(
+
+        "⚠️ Für diesen Zeitraum besteht bereits eine Reservierung.",
+
+        true
+
+      );
+
+      return;
+
+    }
+
+    const response = await fetch(API_URL, {
+
+      method: "POST",
+
+      headers: {
+
+        "apikey": SUPABASE_KEY,
+
+        "Content-Type": "application/json",
+
+        "Prefer": "return=minimal"
+
+      },
+
+      body: JSON.stringify({
+
+        name: reservation.name,
+
+        datum: reservation.date,
+
+        von: reservation.from,
+
+        bis: reservation.to,
+
+        art: reservation.type,
+
+        bemerkung: reservation.note
+
+      })
+
+    });
+
+    if (!response.ok) {
+
+      throw new Error();
+
+    }
+
+    showMessage("✅ Reservierung gespeichert.");
+
+    form.reset();
+
+    document.getElementById("date").value =
+
+      new Date().toISOString().split("T")[0];
+
+    await cloudRenderReservations();
+
+  } catch (error) {
+
+    showMessage("Speichern nicht möglich.", true);
+
+  }
+
+}, true);
+
+// Franz durch Michael ersetzen
+
+const franzOption =
+
+  document.querySelector('#name option[value="Franz"]');
+
+if (franzOption) {
+
+  franzOption.value = "Michael";
+
+  franzOption.textContent = "Michael";
+
+}
+
+cloudRenderReservations();
 </script>
 
 </body>
