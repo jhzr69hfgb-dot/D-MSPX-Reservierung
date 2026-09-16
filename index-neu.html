@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+
+<html lang="de">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta name="theme-color" content="#2563eb">
+
+  <title>D-MSPX Reservierung</title>
+
+  <style>
+
+    * {
+
+      box-sizing: border-box;
+
+    }
+
+    body {
+
+      margin: 0;
+
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+
+      background: #f3f6fb;
+
+      color: #172033;
+
+    }
+
+    .container {
+
+      width: 100%;
+
+      max-width: 760px;
+
+      margin: 0 auto;
+
+      padding: 28px 20px 50px;
+
+    }
+
+    h1 {
+
+      font-size: 48px;
+
+      line-height: 1.05;
+
+      margin: 10px 0 14px;
+
+    }
+
+    .subtitle {
+
+      font-size: 24px;
+
+      line-height: 1.4;
+
+      color: #737b8d;
+
+      margin-bottom: 36px;
+
+    }
+
+    .card {
+
+      background: white;
+
+      border-radius: 30px;
+
+      padding: 34px 28px;
+
+      margin-bottom: 28px;
+
+    }
+
+    h2 {
+
+      font-size: 34px;
+
+      margin: 0 0 30px;
+
+    }
+
+    label {
+
+      display: block;
+
+      font-size: 22px;
+
+      font-weight: 700;
+
+      margin: 24px 0 10px;
+
+    }
+
+    input,
+
+    select,
+
+    textarea {
+
+      width: 100%;
+
+      font-size: 22px;
+
+      padding: 20px 18px;
+
+      border: 3px solid #d5d8df;
+
+      border-radius: 20px;
+
+      background: white;
+
+      color: #172033;
+
+    }
+
+    textarea {
+
+      min-height: 120px;
+
+      resize: vertical;
+
+    }
+
+    button {
+
+      width: 100%;
+
+      border: 0;
+
+      border-radius: 18px;
+
+      padding: 20px;
+
+      font-size: 23px;
+
+      font-weight: 700;
+
+    }
+
+    .save {
+
+      margin-top: 28px;
+
+      background: #3563e9;
+
+      color: white;
+
+    }
+
+    .save:disabled {
+
+      opacity: 0.55;
+
+    }
+
+    .reservation {
+
+      border-left: 7px solid #3563e9;
+
+      background: #f8faff;
+
+      padding: 22px;
+
+      border-radius: 18px;
+
+      margin-bottom: 18px;
+
+    }
+
+    .reservation h3 {
+
+      margin: 0 0 12px;
+
+      font-size: 24px;
+
+    }
+
+    .reservation p {
+
+      font-size: 20px;
+
+      margin: 7px 0;
+
+    }
+
+    .delete {
+
+      width: auto;
+
+      margin-top: 16px;
+
+      padding: 14px 18px;
+
+      background: #fde3e1;
+
+      color: #b8322a;
+
+      font-size: 18px;
+
+    }
+
+    .status,
+
+    .empty {
+
+      text-align: center;
+
+      font-size: 20px;
+
+      color: #737b8d;
+
+      padding: 28px 10px;
+
+      line-height: 1.4;
+
+    }
+
+    .error {
+
+      color: #b8322a;
+
+    }
+
+    .success {
+
+      color: #16803c;
+
+    }
+
+    #message {
+
+      font-size: 18px;
+
+      margin-top: 18px;
+
+      text-align: center;
+
+      min-height: 24px;
+
+    }
+
+    footer {
+
+      text-align: center;
+
+      color: #9ca3af;
+
+      font-size: 18px;
+
+      padding: 10px;
+
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <div class="container">
+
+    <h1>✈️ D-MSPX<br>Reservierung</h1>
+
+    <div class="subtitle">
+
+      Reservierungskalender für unsere Haltergemeinschaft
+
+    </div>
+
+    <div class="card">
+
+      <h2>Reservieren</h2>
+
+      <form id="reservationForm">
+
+        <label for="name">Name</label>
+
+        <select id="name" required>
+
+          <option value="">Bitte auswählen</option>
+
+          <option value="Volker">Volker</option>
+
+          <option value="Philipp">Philipp</option>
+
+          <option value="Michael">Michael</option>
+
+          <option value="Patrick">Patrick</option>
+
+        </select>
+
+        <label for="date">Datum</label>
+
+        <input id="date" type="date" required>
+
+        <label for="from">Von</label>
+
+        <input id="from" type="time" required>
+
+        <label for="to">Bis</label>
+
+        <input id="to" type="time" required>
+
+        <label for="type">Art</label>
+
+        <select id="type">
+
+          <option value="Flug">Flug</option>
+
+          <option value="Wartung">Wartung</option>
+
+          <option value="Sonstiges">Sonstiges</option>
+
+        </select>
+
+        <label for="note">Bemerkung</label>
+
+        <textarea id="note" placeholder="Optional, z. B. Tannheim, Wartung, Tagesausflug …"></textarea>
+
+        <button id="saveButton" class="save" type="submit">
+
+          Reservierung speichern
+
+        </button>
+
+        <div id="message"></div>
+
+      </form>
+
+    </div>
+
+    <div class="card">
+
+      <h2>Reservierungen</h2>
+
+      <div id="reservations">
+
+        <div class="status">Reservierungen werden geladen …</div>
+
+      </div>
+
+    </div>
+
+    <footer>D-MSPX · Haltergemeinschaft</footer>
+
+  </div>
+
+  <script>
+
+    const SUPABASE_URL = "https://rwvygczisftduwnhvksn.supabase.co";
+
+    const SUPABASE_KEY = "sb_publishable_q10vrQku7MJuQ9UZlS6yVg_WXbuyspu";
+
+    const API_URL = SUPABASE_URL + "/rest/v1/reservierungen";
+
+    const form = document.getElementById("reservationForm");
+
+    const list = document.getElementById("reservations");
+
+    const message = document.getElementById("message");
+
+    const saveButton = document.getElementById("saveButton");
+
+    function todayLocal() {
+
+      const d = new Date();
+
+      const year = d.getFullYear();
+
+      const month = String(d.getMonth() + 1).padStart(2, "0");
+
+      const day = String(d.getDate()).padStart(2, "0");
+
+      return `${year}-${month}-${day}`;
+
+    }
+
+    document.getElementById("date").value = todayLocal();
+
+    function showMessage(text, isError = false) {
+
+      message.textContent = text;
+
+      message.className = isError ? "error" : "success";
+
+    }
+
+    function formatDate(value) {
+
+      if (!value) return "";
+
+      const parts = value.split("-");
+
+      return `${parts[2]}.${parts[1]}.${parts[0]}`;
+
+    }
+
+    function cleanTime(value) {
+
+      if (!value) return "";
+
+      return value.substring(0, 5);
+
+    }
+
+    async function getReservations() {
+
+      const response = await fetch(
+
+        API_URL + "?select=*&order=datum.asc,von.asc",
+
+        {
+
+          headers: {
+
+            apikey: SUPABASE_KEY,
+
+            Authorization: "Bearer " + SUPABASE_KEY,
+
+            Accept: "application/json"
+
+          }
+
+        }
+
+      );
+
+      if (!response.ok) {
+
+        const text = await response.text();
+
+        console.error(response.status, text);
+
+        throw new Error();
+
+      }
+
+      return await response.json();
+
+    }
+
+    async function renderReservations() {
+
+      list.innerHTML = '<div class="status">Reservierungen werden geladen …</div>';
+
+      try {
+
+        const reservations = await getReservations();
+
+        list.innerHTML = "";
+
+        if (!reservations.length) {
+
+          list.innerHTML = '<div class="empty">Noch keine Reservierungen vorhanden.</div>';
+
+          return;
+
+        }
+
+        reservations.forEach(r => {
+
+          const card = document.createElement("div");
+
+          card.className = "reservation";
+
+          card.innerHTML = `
+
+            <h3>✈️ ${formatDate(r.datum)} · ${cleanTime(r.von)}–${cleanTime(r.bis)}</h3>
+
+            <p>👤 ${r.name}</p>
+
+            <p>📌 ${r.art}</p>
+
+            ${r.bemerkung ? `<p>📝 ${r.bemerkung}</p>` : ""}
+
+          `;
+
+          const button = document.createElement("button");
+
+          button.className = "delete";
+
+          button.textContent = "Reservierung löschen";
+
+          button.onclick = async () => {
+
+            if (!confirm("Reservierung wirklich löschen?")) return;
+
+            const response = await fetch(
+
+              API_URL + "?id=eq." + encodeURIComponent(r.id),
+
+              {
+
+                method: "DELETE",
+
+                headers: {
+
+                  apikey: SUPABASE_KEY,
+
+                  Authorization: "Bearer " + SUPABASE_KEY
+
+                }
+
+              }
+
+            );
+
+            if (response.ok) {
+
+              renderReservations();
+
+            }
+
+          };
+
+          card.appendChild(button);
+
+          list.appendChild(card);
+
+        });
+
+      } catch {
+
+        list.innerHTML =
+
+          '<div class="status error">Verbindung zur Datenbank fehlgeschlagen.</div>';
+
+      }
+
+    }
+
+    form.addEventListener("submit", async event => {
+
+      event.preventDefault();
+
+      const reservation = {
+
+        name: document.getElementById("name").value,
+
+        datum: document.getElementById("date").value,
+
+        von: document.getElementById("from").value,
+
+        bis: document.getElementById("to").value,
+
+        art: document.getElementById("type").value,
+
+        bemerkung: document.getElementById("note").value.trim()
+
+      };
+
+      if (!reservation.name || !reservation.datum || !reservation.von || !reservation.bis) {
+
+        showMessage("Bitte Name, Datum, Von und Bis ausfüllen.", true);
+
+        return;
+
+      }
+
+      if (reservation.bis <= reservation.von) {
+
+        showMessage("Die Bis-Zeit muss nach der Von-Zeit liegen.", true);
+
+        return;
+
+      }
+
+      saveButton.disabled = true;
+
+      saveButton.textContent = "Wird gespeichert …";
+
+      try {
+
+        const response = await fetch(API_URL, {
+
+          method: "POST",
+
+          headers: {
+
+            apikey: SUPABASE_KEY,
+
+            Authorization: "Bearer " + SUPABASE_KEY,
+
+            "Content-Type": "application/json",
+
+            Prefer: "return=minimal"
+
+          },
+
+          body: JSON.stringify(reservation)
+
+        });
+
+        if (!response.ok) {
+
+          const text = await response.text();
+
+          console.error(response.status, text);
+
+          throw new Error();
+
+        }
+
+        showMessage("✅ Reservierung gespeichert.");
+
+        form.reset();
+
+        document.getElementById("date").value = todayLocal();
+
+        document.getElementById("type").value = "Flug";
+
+        await renderReservations();
+
+      } catch {
+
+        showMessage("Reservierung konnte nicht gespeichert werden.", true);
+
+      } finally {
+
+        saveButton.disabled = false;
+
+        saveButton.textContent = "Reservierung speichern";
+
+      }
+
+    });
+
+    renderReservations();
+
+  </script>
+
+</body>
+
+</html>
